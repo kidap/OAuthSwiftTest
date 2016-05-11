@@ -11,6 +11,7 @@ import MobileCoreServices
 import AssetsLibrary
 
 // TODO add import OAuthSwift
+import OAuthSwift
 
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
   var imagePicker = UIImagePickerController()
@@ -20,7 +21,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
   @IBOutlet weak var moustacheImage: UIImageView!
   
   required init(coder aDecoder: NSCoder) {
-    super.init(coder: aDecoder)
+    super.init(coder: aDecoder)!
   }
   
   override func didReceiveMemoryWarning() {
@@ -74,18 +75,44 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
   
   @IBAction func share(sender: AnyObject) {
     // TODO implement share method
+    let oauthswift = OAuth2Swift(consumerKey: "527780956271-uilmvmkbmed5s4hn1r4icis2e6iskpkk.apps.googleusercontent.com",
+                                 consumerSecret: "1ympZ7yzrdEW_apPyllZPeqS",
+                                 authorizeUrl: "https://accounts.google.com/o/oauth2/auth",
+                                 accessTokenUrl: "https://accounts.google.com/o/oauth2/token",
+                                 responseType: "code")
+    
+    
+    oauthswift.authorizeWithCallbackURL(NSURL(string: "com.access.IncognitoTwo:/oauth2Callback")!,
+                                        scope: "https://www.googleapis.com/auth/drive",
+                                        state: "",
+                                        success: { (data, response, parameters) in
+                                          //do{
+                                          //let jsonObject: AnyObject =  try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableContainers)
+                                            self.presentAlert("Success", message: "Successfully uploaded!")
+                                          //} catch {
+                                          //  self.presentAlert("Error", message: "Error while parsing JSON")
+                                          //}
+      }) { (error) in
+        self.presentAlert("Error", message: error.localizedDescription)
+    }
+    
+    
   }
   
   // MARK: - UIImagePickerControllerDelegate
   
-  func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
+  func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
     imagePicker.dismissViewControllerAnimated(true, completion: nil)
     imageView.image = info[UIImagePickerControllerOriginalImage] as? UIImage
   }
   
+//  func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [NSObject : AnyObject]) {
+//
+//  }
+  
   // MARK: - UIGestureRecognizerDelegate
   
-  func gestureRecognizer(UIGestureRecognizer,
+  func gestureRecognizer(gesture: UIGestureRecognizer,
     shouldRecognizeSimultaneouslyWithGestureRecognizer:UIGestureRecognizer) -> Bool {
       return true
   }
@@ -106,11 +133,11 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
   
   func snapshot() -> NSData {
     UIGraphicsBeginImageContext(self.view.frame.size)
-    self.view.layer.renderInContext(UIGraphicsGetCurrentContext())
+    self.view.layer.renderInContext(UIGraphicsGetCurrentContext()!)
     let fullScreenshot = UIGraphicsGetImageFromCurrentImageContext()
     UIGraphicsEndImageContext()
     UIImageWriteToSavedPhotosAlbum(fullScreenshot, nil, nil, nil)
-    return UIImageJPEGRepresentation(fullScreenshot, 0.5)
+    return UIImageJPEGRepresentation(fullScreenshot, 0.5)!
   }
   
 }
